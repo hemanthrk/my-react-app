@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
+"use client";
+import { useState, useRef, useEffect, useActionState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import footballers from "./footballers";
 import {useDebounce} from "./hooks/useDebounce";
+import { submitForm } from './actions/submitForm';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -25,7 +27,8 @@ useEffect(() =>{
   const [fQuery, setFQuery] = useState("");
   const [fResults, setFResults] = useState([]);
   const [otp, setOtp] = useState();
-  const [counter5, setCounter5] = useState(5);
+  const [counter5, setCounter5] = useState(5); 
+  const [state, submit,isPending] = useActionState(submitForm, {message:""});
 
   function handleClick(){
      const minn = 100000;
@@ -229,6 +232,31 @@ useEffect(() =>{
             { counter5 > 0 ? `Expires in: ${counter5} seconds`: "OTP expired. Click the button to generate a new OTP." }
           </p>
           <button onClick={handleClick} disabled={ (counter5 >0 && counter5 <5) ? true:false} >Generate OTP</button>
+        </div>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+          <form
+          action={submit}
+          className="bg-white p-6 rounded-2xl shadow-md w-full max-w-md"
+          >
+            <h2 className='text-2xl text-center font-semibold text-gray-700 mb-4'>Greet Someone</h2>
+            <input
+            type="text"
+            name='name'
+            placeholder='Enter your name'
+            required
+            className='w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400'
+            />
+            <button
+            type='submit'
+            disabled={isPending}
+            className='w-full mt-4 p-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 disabled:bg-gray-400 transition-all'
+            >
+              {isPending ? "Greeting...": "Greet"}
+            </button>
+            {state.message &&(
+              <p className='mt-4 text-green-600 text-center font-medium'>{state.message}</p>
+            )}
+          </form>
         </div>
       
     </>
