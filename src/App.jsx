@@ -1,11 +1,12 @@
 "use client";
-import { useState, useRef, useEffect, useActionState } from 'react'
+import { useState, useRef, useEffect, useActionState, startTransition } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import footballers from "./footballers";
 import {useDebounce} from "./hooks/useDebounce";
 import { submitForm } from './actions/submitForm';
+import { getUsers } from './actions/getUsers';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -29,6 +30,7 @@ useEffect(() =>{
   const [otp, setOtp] = useState();
   const [counter5, setCounter5] = useState(5); 
   const [state, submit,isPending] = useActionState(submitForm, {message:""});
+  const [users, fetchAction,isPending1 ] = useActionState(getUsers,[])
 
   function handleClick(){
      const minn = 100000;
@@ -258,7 +260,24 @@ useEffect(() =>{
             )}
           </form>
         </div>
-      
+      <div className='p-6 max-w-lg mx-auto'>
+        <button
+        //onClick={fetchAction}
+        onClick={()=> startTransition(()=> fetchAction())}
+        disabled={isPending1}
+        className='px-4 py-2 cursor-pointer bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-400 font-bold'
+        >
+          {isPending1 ? "Fetching Users ...":"Fetch Users"}
+        </button>
+        <ul className='mt-4 space-y-2'>
+          {users.map((user) =>(
+            <li key={user.id} className='p-3 bg-gray-100 rounded-lg' >
+              <p className='font-semibold'>{user.name}</p>
+              <p className='text-sm text-gray-600'>{user.email}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
     </>
   );
 
