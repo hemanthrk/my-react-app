@@ -7,6 +7,7 @@ import footballers from "./footballers";
 import {useDebounce} from "./hooks/useDebounce";
 import { submitForm } from './actions/submitForm';
 import { getUsers } from './actions/getUsers';
+import axios from 'axios';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -31,6 +32,44 @@ useEffect(() =>{
   const [counter5, setCounter5] = useState(5); 
   const [state, submit,isPending] = useActionState(submitForm, {message:""});
   const [users, fetchAction,isPending1 ] = useActionState(getUsers,[])
+  const [data5, setData5] = useState(null)
+  const [loading,setLoading] = useState(true);
+  const [error,setError] = useState(null);
+  const [dataA, setDataA] = useState(null)
+  const [loadingA,setLoadingA] = useState(true);
+  const [errorA,setErrorA] = useState(null);
+
+  useEffect(()=>{
+    const fetchData=async()=>{
+      try{
+        const res = await axios.get("https://jsonplaceholder.typicode.com/users");
+        setDataA(res.data);
+      }catch(err){
+        setErrorA(err);
+      }finally{
+        setLoadingA(false);
+      }
+    };
+    fetchData();
+  },[])
+
+  useEffect(()=>{
+    const fetchData = async()=>{
+      try{
+        const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+        if(!res.ok){
+          throw new Error("Network response was not ok");
+        }
+        const data = await res.json();
+        setData5(data);
+      }catch(err){
+        setError(err);
+      }finally{
+        setLoading(false)
+      }
+    };
+    fetchData();
+    },[])
 
   function handleClick(){
      const minn = 100000;
@@ -140,6 +179,13 @@ useEffect(() =>{
    // updating object in react
     setUser((prevUser) => ({...prevUser,[name]:value} ))
   };
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>{error.message}</p>;
+  }
 
   return (
     <>
@@ -278,6 +324,16 @@ useEffect(() =>{
           ))}
         </ul>
       </div>
+      <div> Fetch  <ul>
+      {data5.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul></div>
+       <div> Fetch using <Axios></Axios> <ul>
+      {dataA.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul></div>
     </>
   );
 
